@@ -10,6 +10,8 @@
       without having spend hours reading the documentation. SimpleArgParse is inspired by the 
       python module 'argparse' and was created due to the lack of easy-to-use argument parsers.
     </Description>
+    <RepositoryUrl>https://github.com/ArdaOzcan/SimpleArgParse</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
 </Project>
