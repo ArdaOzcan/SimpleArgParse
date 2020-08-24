@@ -12,6 +12,8 @@
     </Description>
     <RepositoryUrl>https://github.com/ArdaOzcan/SimpleArgParse</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
+
 
 </Project>
