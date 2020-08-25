@@ -8,8 +8,11 @@ namespace ArdaOzcan.SimpleArgParse
 
         public static bool IsOptionalArgument(this string str)
         {
+            if(str == null)
+                return false;
+            
             if(str.Length > 0)
-                return str[0] == DefaultPrefix;
+                return (str[0] == DefaultPrefix);
 
             return false;
         }

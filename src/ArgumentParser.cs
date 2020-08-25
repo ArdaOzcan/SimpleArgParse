@@ -1,7 +1,7 @@
 using System;
 
 using System.Collections.Generic;
-
+using System.Linq;
 
 namespace ArdaOzcan.SimpleArgParse
 {
@@ -15,15 +15,19 @@ namespace ArdaOzcan.SimpleArgParse
 
         public string Epilog { get; }
 
+        const string positionalArgsTitle = "Positional arguments";
+
+        const string optionalArgsTitle = "Optional arguments";
+
         public List<Argument> PositionalArguments { get; set; }
 
         public List<Argument> OptionalArguments { get; set; }
 
+        public Dictionary<string, List<Argument>> Categories { get; set; }
+
         public Namespace ArgNamespace { get; }
 
         private List<Argument> arguments;
-
-        private HashSet<string> optionalArgumentNames;
 
         public ArgumentParser(string prog = null,
                               string usage = null,
@@ -39,19 +43,24 @@ namespace ArdaOzcan.SimpleArgParse
             Description = description;
             Epilog = epilog;
             Argument helpArg = new Argument("-h",
-                                            alternativeName: "--help",
+                                            longName: "--help",
                                             action: ArgumentAction.Help,
                                             help: "Show this message.");
 
             arguments = new List<Argument> { helpArg };
+
             OptionalArguments = new List<Argument> { helpArg };
             PositionalArguments = new List<Argument>();
-            optionalArgumentNames = new HashSet<string>();
-            ArgNamespace= new Namespace();
+
+            ArgNamespace = new Namespace();
+            Categories = new Dictionary<string, List<Argument>>();
+            
+            Categories[optionalArgsTitle] = new List<Argument>() { helpArg };
+            Categories[positionalArgsTitle] = new List<Argument>();
         }
 
         public void AddArgument(string name,
-                                string alternativeName = null,
+                                string longName = null,
                                 ArgumentAction action = ArgumentAction.Store,
                                 object defaultValue = null,
                                 Type type = null,
@@ -64,7 +73,7 @@ namespace ArdaOzcan.SimpleArgParse
                 throw new InvalidArgumentNameException("An argument name can't contain spaces.");
 
             Argument arg = new Argument(name,
-                                        alternativeName: alternativeName,
+                                        longName: longName,
                                         action: action,
                                         defaultValue: defaultValue,
                                         type: type,
@@ -73,81 +82,80 @@ namespace ArdaOzcan.SimpleArgParse
                                         help: help,
                                         constant: constant);
             arguments.Add(arg);
-            ArgNamespace.Add(arg.KeyName, null);
+
             if (arg.Name.IsOptionalArgument())
             {
+                Categories[optionalArgsTitle].Add(arg);
                 OptionalArguments.Add(arg);
-                optionalArgumentNames.Add(arg.Name);
-                if (arg.AlternativeName != null)
-                    optionalArgumentNames.Add(arg.AlternativeName);
             }
             else
+            {
+                Categories[positionalArgsTitle].Add(arg);
                 PositionalArguments.Add(arg);
+            }
+        }
+
+        public Subparsers AddSubparsers(string help = "", string title = "", string dest = "")
+        {
+            var subparsers = new Subparsers(Prog, help, title, dest);
+            arguments.Add(subparsers);
+            
+            
+            if(Categories.ContainsKey(subparsers.Title))
+                Categories[subparsers.Title].Add(subparsers);
+            else
+                Categories[subparsers.Title] = new List<Argument>() {subparsers};
+            
+            PositionalArguments.Add(subparsers);
+            
+            return subparsers;
         }
 
         public void PrintHelp()
         {
-            string[] positionalHelp = new string[PositionalArguments.Count];
-            for (int i = 0; i < PositionalArguments.Count; i++)
-            {
-                Argument arg = PositionalArguments[i];
-                positionalHelp[i] += "  " + arg.DisplayName;
-            }
-
-            string[] optionalHelp = new string[OptionalArguments.Count];
-            for (int i1 = 0; i1 < OptionalArguments.Count; i1++)
-            {
-                Argument arg = OptionalArguments[i1];
-                optionalHelp[i1] += "  " + arg.DisplayName;
-            }
-
             PrintUsage();
             Console.WriteLine();
-            if (positionalHelp.Length != 0)
-            {
-                Console.WriteLine("Positional arguments: ");
-                for (int i2 = 0; i2 < positionalHelp.Length; i2++)
-                {
-                    Console.Write(positionalHelp[i2]);
-                    if (positionalHelp[i2].Length >= StringUtils.HelpStringOffset - 1)
-                    {
-                        Console.WriteLine();
-                        Console.Write(new string(' ', StringUtils.HelpStringOffset));
-                    }
-                    else
-                    {
-                        Console.Write(new string(' ', StringUtils.HelpStringOffset - positionalHelp[i2].Length));
-                    }
+            // PrintHelpArray("Positional arguments", GetHelpList(PositionalArguments), PositionalArguments);
+            // PrintHelpArray("Optional arguments", GetHelpList(OptionalArguments), OptionalArguments);
 
-                    Console.WriteLine(PositionalArguments[i2].Help);
-                }
-                
-                Console.WriteLine();
-            }
-
-            if (optionalHelp.Length != 0)
-            {
-                Console.WriteLine("Optional arguments: ");
-                for (int i3 = 0; i3 < optionalHelp.Length; i3++)
-                {
-                    Console.Write(optionalHelp[i3]);
-                    if (optionalHelp[i3].Length >= StringUtils.HelpStringOffset - 1)
-                    {
-                        Console.WriteLine();
-                        Console.Write(new string(' ', StringUtils.HelpStringOffset));
-                    }
-                    else
-                    {
-                        Console.Write(new string(' ', StringUtils.HelpStringOffset - optionalHelp[i3].Length));
-                    }
-
-                    Console.WriteLine(OptionalArguments[i3].Help);
-                }
-
-                Console.WriteLine();
-            }
+            foreach(var x in Categories)
+                PrintHelpArray(x.Key, GetHelpList(x.Value), x.Value);
+            
 
             Console.WriteLine(Epilog);
+
+            void PrintHelpArray(string title, List<string> helpList, List<Argument> args)
+            {
+                if (helpList.Count != 0)
+                {
+                    Console.WriteLine(title + ": ");
+                    for (int i = 0; i < helpList.Count; i++)
+                    {
+                        Console.Write(helpList[i]);
+                        if (helpList[i].Length >= StringUtils.HelpStringOffset - 1)
+                        {
+                            Console.WriteLine();
+                            Console.Write(new string(' ', StringUtils.HelpStringOffset));
+                        }
+                        else
+                        {
+                            Console.Write(new string(' ', StringUtils.HelpStringOffset - helpList[i].Length));
+                        }
+
+                        Console.WriteLine(args[i].Help);
+                    }
+
+                    Console.WriteLine();
+                }
+            }
+
+            List<string> GetHelpList(List<Argument> args)
+            {
+                List<string> helpList = new List<string>();
+                foreach (var arg in args)
+                    helpList.Add("  " + arg.DisplayName);
+                return helpList;
+            }
         }
 
         private void PrintUsage()
@@ -159,7 +167,6 @@ namespace ArdaOzcan.SimpleArgParse
         {
             if (Usage != null)
                 return Usage;
-            
 
             string s = "";
 
@@ -167,16 +174,20 @@ namespace ArdaOzcan.SimpleArgParse
                 s += $"[{o.Usage}] ";
 
             foreach (var p in PositionalArguments)
+            {
                 s += p.Usage + " ";
+                if (p.GetType() == typeof(Subparsers))
+                    return s + " ...";
+            }
 
             return s;
         }
 
         public bool OptionalArgumentExists(string arg, out Argument outArg)
         {
-            foreach (var optArg in OptionalArguments)
+            foreach (var optArg in Categories[optionalArgsTitle])
             {
-                if (optArg.Name == arg || optArg.AlternativeName == arg)
+                if (optArg.Name == arg || optArg.LongName == arg)
                 {
                     outArg = optArg;
                     return true;
@@ -210,7 +221,7 @@ namespace ArdaOzcan.SimpleArgParse
 
                                 if (pos >= args.Length)
                                     PrintError($"argument {optArg.Name}: expected one argument");
-                                
+
                                 string val = args[pos];
                                 if (val.IsOptionalArgument())
                                     PrintError($"argument {optArg.Name}: expected one argument");
@@ -236,11 +247,11 @@ namespace ArdaOzcan.SimpleArgParse
                                 if (pos >= args.Length)
                                     PrintError($"argument {optArg.Name}: expected one argument");
 
-                                
+
                                 string appendVal = args[pos];
                                 if (appendVal.IsOptionalArgument())
                                     PrintError($"argument {optArg.Name}: expected one argument");
-                                
+
 
                                 object list = null;
                                 ArgNamespace.TryGetValue(optArg.KeyName, out list);
@@ -265,7 +276,6 @@ namespace ArdaOzcan.SimpleArgParse
                                 Environment.Exit(0);
                                 break;
                         }
-
                     }
 
                     pos += 1;
@@ -273,24 +283,43 @@ namespace ArdaOzcan.SimpleArgParse
                 }
 
                 if (currentPositionalArg != null)
-                    ArgNamespace[currentPositionalArg.Name] = arg;
+                {
+                    if (!string.IsNullOrEmpty(currentPositionalArg.KeyName))
+                        ArgNamespace[currentPositionalArg.KeyName] = arg;
+
+                    if (currentPositionalArg.GetType() == typeof(Subparsers))
+                    {
+                        string[] newArr = new string[args.Length - pos - 1];
+                        Array.Copy(args, pos + 1, newArr, 0, args.Length - pos - 1);
+
+                        var currentSubparser = ((Subparsers)currentPositionalArg);
+                        if (currentSubparser.parsers.ContainsKey(arg))
+                        {
+                            var ns = currentSubparser.parsers[arg].ParseArgs(newArr);
+                            ArgNamespace.Join(ns);
+                        }
+                        else
+                        {
+                            PrintError($"invalid choice: '{arg}' (choose from {string.Join(", ", currentSubparser.parsers.Keys)})");
+                        }
+
+                        return ArgNamespace;
+                    }
+                }
 
                 pos += 1;
                 positionalArgPos += 1;
             }
 
             var notSuppliedPositionalArguments = new List<string>();
-            foreach (var arg in PositionalArguments)
+            foreach (var arg in Categories[positionalArgsTitle])
             {
                 if (!ArgNamespace.ContainsKey(arg.Name))
-                {
                     notSuppliedPositionalArguments.Add(arg.Name);
-                }
             }
 
             if (notSuppliedPositionalArguments.Count > 0)
             {
-                PrintUsage();
                 PrintError($"the following arguments are required: {string.Join(", ", notSuppliedPositionalArguments)}");
             }
 
@@ -299,6 +328,7 @@ namespace ArdaOzcan.SimpleArgParse
 
         private void PrintError(string msg)
         {
+            PrintUsage();
             Console.WriteLine($"{Prog} : error: {msg}");
             Environment.Exit(-1);
         }

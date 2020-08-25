@@ -7,12 +7,12 @@ namespace ArdaOzcan.SimpleArgParse
 {
     public class Argument
     {
-        public string DisplayName
+        public virtual string DisplayName
         {
             get
             {   
-                if(AlternativeName != null)
-                        return string.Format("{0}, {1}", Name, AlternativeName);
+                if(LongName != null)
+                        return string.Format("{0}, {1}", Name, LongName);
                     else
                         return Name;
             }
@@ -24,7 +24,7 @@ namespace ArdaOzcan.SimpleArgParse
 
         public bool IsOptional { get; }
 
-        public string AlternativeName { get; }
+        public string LongName { get; }
 
         public ArgumentAction Action { get; }
 
@@ -38,14 +38,14 @@ namespace ArdaOzcan.SimpleArgParse
 
         public string Help { get; }
 
-        public string Usage { get; }
+        public string Usage { get; set; }
 
         public object Constant { get; }
 
         public string KeyName { get; }
 
         public Argument(string name,
-                        string alternativeName = null,
+                        string longName = null,
                         ArgumentAction action = ArgumentAction.Store,
                         object defaultValue = null,
                         Type type = null,
@@ -57,7 +57,7 @@ namespace ArdaOzcan.SimpleArgParse
             Name = name;
             IsOptional = Name.IsOptionalArgument();
             IsPositional = !IsOptional;
-            AlternativeName = alternativeName;
+            LongName = longName;
             Action = action;
             DefaultValue = defaultValue;
             Type = type;
@@ -67,10 +67,10 @@ namespace ArdaOzcan.SimpleArgParse
             Constant = constant;
             Usage = Name;
 
-            if(AlternativeName == null)
+            if(LongName == null)
                 KeyName = Name.TrimStart(StringUtils.DefaultPrefix);
             else
-                KeyName = AlternativeName.TrimStart(StringUtils.DefaultPrefix);
+                KeyName = LongName.TrimStart(StringUtils.DefaultPrefix);
         }
 
         public override string ToString() => Name;
