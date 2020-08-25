@@ -7,15 +7,36 @@ namespace ArdaOzcan.SimpleArgParse
 {
     public class Argument
     {
+        public static HashSet<ArgumentAction> ValueActions = new HashSet<ArgumentAction>
+        {
+            ArgumentAction.Store,
+            ArgumentAction.Append
+        };
+
         public virtual string DisplayName
         {
             get
-            {   
-                if(LongName != null)
+            {
+                if (IsValueAction())
+                {
+                    if (LongName != null)
+                        return string.Format("{0} {1}, {2} {1}", Name, UpperName, LongName);
+                    else
+                        return string.Format("{0} {1}", Name, UpperName);
+                }
+                else
+                {
+                    if (LongName != null)
                         return string.Format("{0}, {1}", Name, LongName);
                     else
                         return Name;
+                }
             }
+        }
+
+        public bool IsValueAction()
+        {
+            return ValueActions.Contains(Action);
         }
 
         public string Name { get; }
@@ -42,6 +63,8 @@ namespace ArdaOzcan.SimpleArgParse
 
         public object Constant { get; }
 
+        public string UpperName { get; }
+
         public string KeyName { get; }
 
         public Argument(string name,
@@ -65,12 +88,20 @@ namespace ArdaOzcan.SimpleArgParse
             Required = required;
             Help = help;
             Constant = constant;
-            Usage = Name;
 
-            if(LongName == null)
+            if (LongName == null)
                 KeyName = Name.TrimStart(StringUtils.DefaultPrefix);
             else
                 KeyName = LongName.TrimStart(StringUtils.DefaultPrefix);
+
+            UpperName = KeyName.ToUpperInvariant();
+
+            
+            if (ValueActions.Contains(Action))
+                Usage = Name + " " + UpperName;
+            else
+                Usage = Name;
+
         }
 
         public override string ToString() => Name;

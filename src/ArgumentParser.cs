@@ -121,8 +121,8 @@ namespace ArdaOzcan.SimpleArgParse
             foreach(var x in Categories)
                 PrintHelpArray(x.Key, GetHelpList(x.Value), x.Value);
             
-
-            Console.WriteLine(Epilog);
+            if(!string.IsNullOrEmpty(Epilog))
+                Console.WriteLine(Epilog);
 
             void PrintHelpArray(string title, List<string> helpList, List<Argument> args)
             {
@@ -142,7 +142,8 @@ namespace ArdaOzcan.SimpleArgParse
                             Console.Write(new string(' ', StringUtils.HelpStringOffset - helpList[i].Length));
                         }
 
-                        Console.WriteLine(args[i].Help);
+                        if(!string.IsNullOrEmpty(args[i].Help))
+                            Console.WriteLine(args[i].Help);
                     }
 
                     Console.WriteLine();
@@ -177,7 +178,7 @@ namespace ArdaOzcan.SimpleArgParse
             {
                 s += p.Usage + " ";
                 if (p.GetType() == typeof(Subparsers))
-                    return s + " ...";
+                    return s + "...";
             }
 
             return s;
