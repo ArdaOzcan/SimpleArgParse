@@ -202,6 +202,13 @@ namespace ArdaOzcan.SimpleArgParse
             return false;
         }
 
+        void CheckValueInChoices(Argument arg, object value)
+        {
+            if(arg.Choices != null && !arg.Choices.Contains(value))
+                PrintError($"invalid choice: '{arg}' (choose from {string.Join(", ", arg.Choices)})");
+            
+        }
+
         public Namespace ParseArgs(string[] args)
         {
             var argNamespace = new Namespace();
@@ -236,6 +243,7 @@ namespace ArdaOzcan.SimpleArgParse
                                 if (val.IsOptionalArgument())
                                     PrintError($"argument {optArg.Name}: expected one argument");
 
+                                CheckValueInChoices(optArg, val);
                                 argNamespace[optArg.KeyName] = val;
                                 break;
 
@@ -268,6 +276,7 @@ namespace ArdaOzcan.SimpleArgParse
                                 if (list == null)
                                     argNamespace[optArg.KeyName] = new ArgumentValueList();
 
+                                CheckValueInChoices(optArg, appendVal);
                                 ((ArgumentValueList)argNamespace[optArg.KeyName]).Add(appendVal);
                                 break;
 
@@ -337,7 +346,7 @@ namespace ArdaOzcan.SimpleArgParse
         private void PrintError(string msg)
         {
             PrintUsage();
-            Console.WriteLine($"{Prog} : error: {msg}");
+            Console.WriteLine($"{Prog}: error: {msg}");
             Environment.Exit(-1);
         }
     }
