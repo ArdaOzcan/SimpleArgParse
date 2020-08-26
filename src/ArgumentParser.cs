@@ -214,7 +214,10 @@ namespace ArdaOzcan.SimpleArgParse
             var argNamespace = new Namespace();
 
             foreach (var arg in OptionalArguments)
-                argNamespace[arg.KeyName] = arg.DefaultValue;
+            {
+                if(arg.IsValueAction)
+                    argNamespace[arg.KeyName] = arg.DefaultValue;
+            }
             
 
             int pos = 0;
