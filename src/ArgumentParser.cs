@@ -304,7 +304,10 @@ namespace ArdaOzcan.SimpleArgParse
                 if (currentPositionalArg != null)
                 {
                     if (!string.IsNullOrEmpty(currentPositionalArg.KeyName))
+                    {
+                        CheckValueInChoices(currentPositionalArg, arg);
                         argNamespace[currentPositionalArg.KeyName] = arg;
+                    }
 
                     if (currentPositionalArg.GetType() == typeof(Subparsers))
                     {
