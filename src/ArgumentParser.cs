@@ -334,15 +334,15 @@ namespace ArdaOzcan.SimpleArgParse
             var notSuppliedPositionalArguments = new List<string>();
             foreach (var arg in Categories[positionalArgsTitle])
             {
-                if (!argNamespace.ContainsKey(arg.Name))
-                    notSuppliedPositionalArguments.Add(arg.Name);
+                if (!argNamespace.ContainsKey(arg.KeyName))
+                    notSuppliedPositionalArguments.Add(arg.KeyName);
             }
 
             var notSuppliedRequiredOptionalArguments = new List<string>();
             foreach (var arg in OptionalArguments)
             {
-                if (!argNamespace.ContainsKey(arg.Name) && arg.Required)
-                    notSuppliedRequiredOptionalArguments.Add(arg.Name);
+                if (!argNamespace.ContainsKey(arg.KeyName) && arg.Required)
+                    notSuppliedRequiredOptionalArguments.Add(arg.KeyName);
             }
 
             if (notSuppliedRequiredOptionalArguments.Count > 0)
@@ -359,7 +359,7 @@ namespace ArdaOzcan.SimpleArgParse
         {
             PrintUsage();
             Console.WriteLine($"{Prog}: error: {msg}");
-            Environment.Exit(-1);
+            Environment.Exit(1);
         }
     }
 }
