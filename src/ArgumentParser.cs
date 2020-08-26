@@ -118,8 +118,17 @@ namespace ArdaOzcan.SimpleArgParse
             // PrintHelpArray("Positional arguments", GetHelpList(PositionalArguments), PositionalArguments);
             // PrintHelpArray("Optional arguments", GetHelpList(OptionalArguments), OptionalArguments);
 
+
+            bool first = true;
             foreach(var x in Categories)
+            {
+                if(first)
+                    first = false;
+                else
+                    Console.WriteLine();
+
                 PrintHelpArray(x.Key, GetHelpList(x.Value), x.Value);
+            }
             
             if(!string.IsNullOrEmpty(Epilog))
                 Console.WriteLine(Epilog);
@@ -143,7 +152,7 @@ namespace ArdaOzcan.SimpleArgParse
                         }
 
                         if(!string.IsNullOrEmpty(args[i].Help))
-                            Console.WriteLine(args[i].Help);
+                            Console.Write(args[i].Help);
                     }
 
                     Console.WriteLine();
@@ -178,7 +187,7 @@ namespace ArdaOzcan.SimpleArgParse
             {
                 s += p.Usage + " ";
                 if (p.GetType() == typeof(Subparsers))
-                    return s + "...";
+                    s += "... ";
             }
 
             return s;
@@ -303,8 +312,6 @@ namespace ArdaOzcan.SimpleArgParse
                         {
                             PrintError($"invalid choice: '{arg}' (choose from {string.Join(", ", currentSubparser.parsers.Keys)})");
                         }
-
-                        return ArgNamespace;
                     }
                 }
 

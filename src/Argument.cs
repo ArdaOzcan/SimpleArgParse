@@ -17,7 +17,7 @@ namespace ArdaOzcan.SimpleArgParse
         {
             get
             {
-                if (IsValueAction())
+                if (IsOptional && IsValueAction)
                 {
                     if (LongName != null)
                         return string.Format("{0} {1}, {2} {1}", Name, UpperName, LongName);
@@ -34,10 +34,7 @@ namespace ArdaOzcan.SimpleArgParse
             }
         }
 
-        public bool IsValueAction()
-        {
-            return ValueActions.Contains(Action);
-        }
+        public bool IsValueAction => ValueActions.Contains(Action);
 
         public string Name { get; }
 
@@ -97,7 +94,7 @@ namespace ArdaOzcan.SimpleArgParse
             UpperName = KeyName.ToUpperInvariant();
 
             
-            if (ValueActions.Contains(Action))
+            if (IsOptional && IsValueAction)
                 Usage = Name + " " + UpperName;
             else
                 Usage = Name;
