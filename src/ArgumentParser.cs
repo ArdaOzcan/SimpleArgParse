@@ -169,7 +169,7 @@ namespace ArdaOzcan.SimpleArgParse
 
         private void PrintUsage()
         {
-            Console.WriteLine($"usage: {Prog} {GetUsage()}");
+            Console.WriteLine($"usage: {GetUsage()}");
         }
 
         private string GetUsage()
@@ -177,7 +177,7 @@ namespace ArdaOzcan.SimpleArgParse
             if (Usage != null)
                 return Usage;
 
-            string s = "";
+            string s = $"{Prog} ";
 
             foreach (var o in OptionalArguments)
                 s += $"[{o.Usage}] ";
