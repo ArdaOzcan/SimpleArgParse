@@ -25,8 +25,6 @@ namespace ArdaOzcan.SimpleArgParse
 
         Dictionary<string, List<Argument>> Categories { get; set; }
 
-        public Namespace ArgNamespace { get; }
-
         private List<Argument> arguments;
 
         public ArgumentParser(string prog = null,
@@ -52,7 +50,6 @@ namespace ArdaOzcan.SimpleArgParse
             OptionalArguments = new List<Argument> { helpArg };
             PositionalArguments = new List<Argument>();
 
-            ArgNamespace = new Namespace();
             Categories = new Dictionary<string, List<Argument>>();
             
             Categories[optionalArgsTitle] = new List<Argument>() { helpArg };
@@ -209,6 +206,12 @@ namespace ArdaOzcan.SimpleArgParse
 
         public Namespace ParseArgs(string[] args)
         {
+            var argNamespace = new Namespace();
+
+            foreach (var arg in OptionalArguments)
+                argNamespace[arg.KeyName] = arg.DefaultValue;
+            
+
             int pos = 0;
             int positionalArgPos = 0;
             while (pos < args.Length)
@@ -235,19 +238,19 @@ namespace ArdaOzcan.SimpleArgParse
                                 if (val.IsOptionalArgument())
                                     PrintError($"argument {optArg.Name}: expected one argument");
 
-                                ArgNamespace[optArg.KeyName] = val;
+                                argNamespace[optArg.KeyName] = val;
                                 break;
 
                             case ArgumentAction.StoreConst:
-                                ArgNamespace[optArg.KeyName] = optArg.Constant;
+                                argNamespace[optArg.KeyName] = optArg.Constant;
                                 break;
 
                             case ArgumentAction.StoreTrue:
-                                ArgNamespace[optArg.KeyName] = true;
+                                argNamespace[optArg.KeyName] = true;
                                 break;
 
                             case ArgumentAction.StoreFalse:
-                                ArgNamespace[optArg.KeyName] = false;
+                                argNamespace[optArg.KeyName] = false;
                                 break;
 
                             case ArgumentAction.Append:
@@ -263,21 +266,21 @@ namespace ArdaOzcan.SimpleArgParse
 
 
                                 object list = null;
-                                ArgNamespace.TryGetValue(optArg.KeyName, out list);
+                                argNamespace.TryGetValue(optArg.KeyName, out list);
                                 if (list == null)
-                                    ArgNamespace[optArg.KeyName] = new ArgumentValueList();
+                                    argNamespace[optArg.KeyName] = new ArgumentValueList();
 
-                                ((ArgumentValueList)ArgNamespace[optArg.KeyName]).Add(appendVal);
+                                ((ArgumentValueList)argNamespace[optArg.KeyName]).Add(appendVal);
                                 break;
 
                             case ArgumentAction.AppendConst:
                                 object constList = null;
-                                ArgNamespace.TryGetValue(optArg.KeyName, out constList);
+                                argNamespace.TryGetValue(optArg.KeyName, out constList);
 
                                 if (constList == null)
-                                    ArgNamespace[optArg.KeyName] = new ArgumentValueList();
+                                    argNamespace[optArg.KeyName] = new ArgumentValueList();
 
-                                ((ArgumentValueList)ArgNamespace[optArg.KeyName]).Add(optArg.Constant);
+                                ((ArgumentValueList)argNamespace[optArg.KeyName]).Add(optArg.Constant);
                                 break;
 
                             case ArgumentAction.Help:
@@ -294,7 +297,7 @@ namespace ArdaOzcan.SimpleArgParse
                 if (currentPositionalArg != null)
                 {
                     if (!string.IsNullOrEmpty(currentPositionalArg.KeyName))
-                        ArgNamespace[currentPositionalArg.KeyName] = arg;
+                        argNamespace[currentPositionalArg.KeyName] = arg;
 
                     if (currentPositionalArg.GetType() == typeof(Subparsers))
                     {
@@ -305,7 +308,7 @@ namespace ArdaOzcan.SimpleArgParse
                         if (currentSubparser.parsers.ContainsKey(arg))
                         {
                             var ns = currentSubparser.parsers[arg].ParseArgs(newArr);
-                            ArgNamespace.Join(ns);
+                            argNamespace.Join(ns);
                         }
                         else
                         {
@@ -321,7 +324,7 @@ namespace ArdaOzcan.SimpleArgParse
             var notSuppliedPositionalArguments = new List<string>();
             foreach (var arg in Categories[positionalArgsTitle])
             {
-                if (!ArgNamespace.ContainsKey(arg.Name))
+                if (!argNamespace.ContainsKey(arg.Name))
                     notSuppliedPositionalArguments.Add(arg.Name);
             }
 
@@ -330,7 +333,7 @@ namespace ArdaOzcan.SimpleArgParse
                 PrintError($"the following arguments are required: {string.Join(", ", notSuppliedPositionalArguments)}");
             }
 
-            return ArgNamespace;
+            return argNamespace;
         }
 
         private void PrintError(string msg)
