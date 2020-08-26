@@ -19,11 +19,11 @@ namespace ArdaOzcan.SimpleArgParse
 
         const string optionalArgsTitle = "Optional arguments";
 
-        public List<Argument> PositionalArguments { get; set; }
+        List<Argument> PositionalArguments { get; set; }
 
-        public List<Argument> OptionalArguments { get; set; }
+        List<Argument> OptionalArguments { get; set; }
 
-        public Dictionary<string, List<Argument>> Categories { get; set; }
+        Dictionary<string, List<Argument>> Categories { get; set; }
 
         public Namespace ArgNamespace { get; }
 
@@ -111,7 +111,7 @@ namespace ArdaOzcan.SimpleArgParse
             return subparsers;
         }
 
-        public void PrintHelp()
+        private void PrintHelp()
         {
             PrintUsage();
             Console.WriteLine();
@@ -192,7 +192,7 @@ namespace ArdaOzcan.SimpleArgParse
             return s;
         }
 
-        public bool OptionalArgumentExists(string arg, out Argument outArg)
+        private bool OptionalArgumentExists(string arg, out Argument outArg)
         {
             foreach (var optArg in Categories[optionalArgsTitle])
             {
