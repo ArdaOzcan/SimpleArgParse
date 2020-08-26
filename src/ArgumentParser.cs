@@ -175,7 +175,7 @@ namespace ArdaOzcan.SimpleArgParse
             string s = $"{Prog} ";
 
             foreach (var o in OptionalArguments)
-                s += $"[{o.Usage}] ";
+                s += o.Usage + " ";
 
             foreach (var p in PositionalArguments)
             {
@@ -338,10 +338,19 @@ namespace ArdaOzcan.SimpleArgParse
                     notSuppliedPositionalArguments.Add(arg.Name);
             }
 
-            if (notSuppliedPositionalArguments.Count > 0)
+            var notSuppliedRequiredOptionalArguments = new List<string>();
+            foreach (var arg in OptionalArguments)
             {
-                PrintError($"the following arguments are required: {string.Join(", ", notSuppliedPositionalArguments)}");
+                if (!argNamespace.ContainsKey(arg.Name) && arg.Required)
+                    notSuppliedRequiredOptionalArguments.Add(arg.Name);
             }
+
+            if (notSuppliedRequiredOptionalArguments.Count > 0)
+                PrintError($"the following arguments are required: {string.Join(", ", notSuppliedRequiredOptionalArguments)}");
+
+            if (notSuppliedPositionalArguments.Count > 0)
+                PrintError($"the following arguments are required: {string.Join(", ", notSuppliedPositionalArguments)}");
+            
 
             return argNamespace;
         }

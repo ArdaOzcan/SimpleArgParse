@@ -90,10 +90,17 @@ namespace ArdaOzcan.SimpleArgParse
             UpperName = KeyName.ToUpperInvariant();
 
             
-            if (IsOptional && IsValueAction)
-                Usage = Name + " " + UpperName;
+            if (IsOptional)
+            {
+                if(IsValueAction)
+                    Usage = Name + " " + UpperName;
+                else
+                    Usage = "[" + Name + "]";
+            }
             else
                 Usage = Name;
+                
+            
 
         }
 
