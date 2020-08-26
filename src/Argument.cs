@@ -48,8 +48,6 @@ namespace ArdaOzcan.SimpleArgParse
 
         public object DefaultValue { get; }
 
-        public Type Type { get; }
-
         public List<string> Choices { get; }
 
         public bool Required { get; }
@@ -68,7 +66,6 @@ namespace ArdaOzcan.SimpleArgParse
                         string longName = null,
                         ArgumentAction action = ArgumentAction.Store,
                         object defaultValue = null,
-                        Type type = null,
                         List<string> choices = null,
                         bool required = false,
                         string help = "",
@@ -80,7 +77,6 @@ namespace ArdaOzcan.SimpleArgParse
             LongName = longName;
             Action = action;
             DefaultValue = defaultValue;
-            Type = type;
             Choices = choices;
             Required = required;
             Help = help;
