@@ -115,6 +115,11 @@ namespace ArdaOzcan.SimpleArgParse
         {
             PrintUsage();
             Console.WriteLine();
+            if(!string.IsNullOrEmpty(Description))
+            {
+                Console.WriteLine(Description);
+                Console.WriteLine();
+            }
             // PrintHelpArray("Positional arguments", GetHelpList(PositionalArguments), PositionalArguments);
             // PrintHelpArray("Optional arguments", GetHelpList(OptionalArguments), OptionalArguments);
 
