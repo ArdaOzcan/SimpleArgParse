@@ -119,16 +119,9 @@ namespace ArdaOzcan.SimpleArgParse
             // PrintHelpArray("Optional arguments", GetHelpList(OptionalArguments), OptionalArguments);
 
 
-            bool first = true;
             foreach(var x in Categories)
-            {
-                if(first)
-                    first = false;
-                else
-                    Console.WriteLine();
-
                 PrintHelpArray(x.Key, GetHelpList(x.Value), x.Value);
-            }
+            
             
             if(!string.IsNullOrEmpty(Epilog))
                 Console.WriteLine(Epilog);
@@ -153,6 +146,7 @@ namespace ArdaOzcan.SimpleArgParse
 
                         if(!string.IsNullOrEmpty(args[i].Help))
                             Console.Write(args[i].Help);
+                        Console.WriteLine();
                     }
 
                     Console.WriteLine();
