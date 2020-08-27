@@ -14,7 +14,7 @@ namespace ArdaOzcan.SimpleArgParse
 
         public string Title { get; }
 
-        public Subparsers(string prog, string help = "", string title = "", string dest="") : base(dest, help: help)
+        internal Subparsers(string prog, string help = "", string title = "", string dest="") : base(dest, help: help)
         {
             parsers = new Dictionary<string, ArgumentParser>();
             Prog = prog;

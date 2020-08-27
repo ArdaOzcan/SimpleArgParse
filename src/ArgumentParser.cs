@@ -51,7 +51,7 @@ namespace ArdaOzcan.SimpleArgParse
             PositionalArguments = new List<Argument>();
 
             Categories = new Dictionary<string, List<Argument>>();
-            
+
             Categories[optionalArgsTitle] = new List<Argument>() { helpArg };
             Categories[positionalArgsTitle] = new List<Argument>();
         }
@@ -94,21 +94,21 @@ namespace ArdaOzcan.SimpleArgParse
         {
             var subparsers = new Subparsers(Prog, help, title, dest);
             arguments.Add(subparsers);
-            
-            if(!string.IsNullOrEmpty(subparsers.Title))
+
+            if (!string.IsNullOrEmpty(subparsers.Title))
             {
-                if(Categories.ContainsKey(subparsers.Title))
+                if (Categories.ContainsKey(subparsers.Title))
                     Categories[subparsers.Title].Add(subparsers);
                 else
-                    Categories[subparsers.Title] = new List<Argument>() {subparsers};
+                    Categories[subparsers.Title] = new List<Argument>() { subparsers };
             }
             else
             {
                 Categories[positionalArgsTitle].Add(subparsers);
             }
-            
+
             PositionalArguments.Add(subparsers);
-            
+
             return subparsers;
         }
 
@@ -116,7 +116,7 @@ namespace ArdaOzcan.SimpleArgParse
         {
             PrintUsage();
             Console.WriteLine();
-            if(!string.IsNullOrEmpty(Description))
+            if (!string.IsNullOrEmpty(Description))
             {
                 Console.WriteLine(Description);
                 Console.WriteLine();
@@ -125,11 +125,11 @@ namespace ArdaOzcan.SimpleArgParse
             // PrintHelpArray("Optional arguments", GetHelpList(OptionalArguments), OptionalArguments);
 
 
-            foreach(var x in Categories)
+            foreach (var x in Categories)
                 PrintHelpArray(x.Key, GetHelpList(x.Value), x.Value);
-            
-            
-            if(!string.IsNullOrEmpty(Epilog))
+
+
+            if (!string.IsNullOrEmpty(Epilog))
                 Console.WriteLine(Epilog);
 
             void PrintHelpArray(string title, List<string> helpList, List<Argument> args)
@@ -150,7 +150,7 @@ namespace ArdaOzcan.SimpleArgParse
                             Console.Write(new string(' ', StringUtils.HelpStringOffset - helpList[i].Length));
                         }
 
-                        if(!string.IsNullOrEmpty(args[i].Help))
+                        if (!string.IsNullOrEmpty(args[i].Help))
                             Console.Write(args[i].Help);
                         Console.WriteLine();
                     }
@@ -210,9 +210,9 @@ namespace ArdaOzcan.SimpleArgParse
 
         void CheckValueInChoices(Argument arg, object value)
         {
-            if(arg.Choices != null && !arg.Choices.Contains(value))
+            if (arg.Choices != null && !arg.Choices.Contains(value))
                 PrintError($"invalid choice: '{arg}' (choose from {string.Join(", ", arg.Choices)})");
-            
+
         }
 
         public Namespace ParseArgs(string[] args)
@@ -221,10 +221,16 @@ namespace ArdaOzcan.SimpleArgParse
 
             foreach (var arg in OptionalArguments)
             {
-                if(arg.IsValueAction && !arg.Required)
+                if (arg.Action != ArgumentAction.Help && !arg.Required)
+                {
                     argNamespace[arg.KeyName] = arg.DefaultValue;
+                    if (arg.Action == ArgumentAction.StoreTrue)
+                        argNamespace[arg.KeyName] = false;
+                    if (arg.Action == ArgumentAction.StoreFalse)
+                        argNamespace[arg.KeyName] = true;
+                }
             }
-            
+
 
             int pos = 0;
             int positionalArgPos = 0;
@@ -359,7 +365,7 @@ namespace ArdaOzcan.SimpleArgParse
 
             if (notSuppliedPositionalArguments.Count > 0)
                 PrintError($"the following arguments are required: {string.Join(", ", notSuppliedPositionalArguments)}");
-            
+
 
             return argNamespace;
         }

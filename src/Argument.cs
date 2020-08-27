@@ -62,7 +62,7 @@ namespace ArdaOzcan.SimpleArgParse
 
         public string KeyName { get; }
 
-        public Argument(string name,
+        internal Argument(string name,
                         string longName = null,
                         ArgumentAction action = ArgumentAction.Store,
                         object defaultValue = null,

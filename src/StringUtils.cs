@@ -1,6 +1,6 @@
 namespace ArdaOzcan.SimpleArgParse
 {
-    public static class StringUtils
+    internal static class StringUtils
     {
         public const char DefaultPrefix = '-';
 
