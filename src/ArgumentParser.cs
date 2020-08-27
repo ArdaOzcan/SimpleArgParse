@@ -215,7 +215,7 @@ namespace ArdaOzcan.SimpleArgParse
 
             foreach (var arg in OptionalArguments)
             {
-                if(arg.IsValueAction)
+                if(arg.IsValueAction && !arg.Required)
                     argNamespace[arg.KeyName] = arg.DefaultValue;
             }
             
