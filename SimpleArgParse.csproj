@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>ArdaOzcan</Authors>
     <PackageId>ArdaOzcan.SimpleArgParse</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Description>
       This library allows our fellow programmers to easily parse some command line arguments
       without having spend hours reading the documentation. SimpleArgParse is inspired by the 
@@ -13,7 +13,12 @@
     <RepositoryUrl>https://github.com/ArdaOzcan/SimpleArgParse</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>SAPLogo-square.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+      <None Include="res\SAPLogo-square.png" Pack="true" PackagePath="\"/>
+  </ItemGroup>
 
 
 </Project>
