@@ -215,6 +215,7 @@ namespace ArdaOzcan.SimpleArgParse
         public Namespace ParseArgs(string[] args)
         {
             var argNamespace = new Namespace();
+            var unrecognizedArguments = new List<string>();
 
             foreach (var arg in OptionalArguments)
             {
@@ -308,6 +309,9 @@ namespace ArdaOzcan.SimpleArgParse
                                 break;
                         }
                     }
+                    else
+                        unrecognizedArguments.Add(arg);
+                    
 
                     pos += 1;
                     continue;
@@ -338,10 +342,15 @@ namespace ArdaOzcan.SimpleArgParse
                         }
                     }
                 }
+                else
+                    unrecognizedArguments.Add(arg);
 
                 pos += 1;
                 positionalArgPos += 1;
             }
+
+            if(unrecognizedArguments.Count > 0)
+                PrintError($"unrecognized arguments: {string.Join(", ", unrecognizedArguments)}");
 
             var notSuppliedPositionalArguments = new List<string>();
             foreach (var arg in PositionalArguments)
