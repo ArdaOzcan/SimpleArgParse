@@ -13,4 +13,4 @@ SimpleArgParse or SAP is a NuGet package for easily parsing command line argumen
 ## Usage
 You will be familiar with the usage of *SAP* if you've used *argparse* with python. Unlike many argument parsers for .NET, SAP provides an understandable and easy way of setting up a custom command line interface for your .NET applications.
 
-Check the wiki for more on detailed information on how to use it.
+Check the [wiki](https://github.com/ArdaOzcan/SimpleArgParse/wiki) for more on detailed information on how to use it.
