@@ -95,11 +95,17 @@ namespace ArdaOzcan.SimpleArgParse
             var subparsers = new Subparsers(Prog, help, title, dest);
             arguments.Add(subparsers);
             
-            
-            if(Categories.ContainsKey(subparsers.Title))
-                Categories[subparsers.Title].Add(subparsers);
+            if(!string.IsNullOrEmpty(subparsers.Title))
+            {
+                if(Categories.ContainsKey(subparsers.Title))
+                    Categories[subparsers.Title].Add(subparsers);
+                else
+                    Categories[subparsers.Title] = new List<Argument>() {subparsers};
+            }
             else
-                Categories[subparsers.Title] = new List<Argument>() {subparsers};
+            {
+                Categories[positionalArgsTitle].Add(subparsers);
+            }
             
             PositionalArguments.Add(subparsers);
             
@@ -335,9 +341,9 @@ namespace ArdaOzcan.SimpleArgParse
             }
 
             var notSuppliedPositionalArguments = new List<string>();
-            foreach (var arg in Categories[positionalArgsTitle])
+            foreach (var arg in PositionalArguments)
             {
-                if (!argNamespace.ContainsKey(arg.KeyName))
+                if (!argNamespace.ContainsKey(arg.KeyName) && arg.GetType() != typeof(Subparsers))
                     notSuppliedPositionalArguments.Add(arg.KeyName);
             }
 
