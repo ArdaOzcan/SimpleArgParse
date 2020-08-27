@@ -27,6 +27,13 @@ namespace ArdaOzcan.SimpleArgParse
 
         private List<Argument> arguments;
 
+        /// <summary>
+        /// Argument parser for the command line arguments.
+        /// </summary>
+        /// <param name="prog">Program name mentioned in the usage string. It is the executable name by default.</param>
+        /// <param name="usage">Similar to `prog`, you can override `usage` with a custom string. It is `usage: {prog} {optionalArgs} {positionalArgs}` by default.</param>
+        /// <param name="description">`description` is a string printed just after the usage in a help message. It is `null` by default.</param>
+        /// <param name="epilog">String that is printed after the whole help message. It is `null` by default.</param>
         public ArgumentParser(string prog = null,
                               string usage = null,
                               string description = null,
@@ -56,6 +63,17 @@ namespace ArdaOzcan.SimpleArgParse
             Categories[positionalArgsTitle] = new List<Argument>();
         }
 
+        /// <summary>
+        /// Add an argument with the specified properties to the argument parser.
+        /// </summary>
+        /// <param name="name">Name of the argument. If this name starts with the "-" prefix then it will be an optional argument, else it will be a positional argument.</param>
+        /// <param name="longName">Longer (not necessarily) name of an optional argument, an alias. It can be used for positional arguments, it would only change the key value in the namespace.</param>
+        /// <param name="action">Action of an optional argument.</param>
+        /// <param name="defaultValue">Default value of an optional argument if it is not supplied. Default value is `null` by default.</param>
+        /// <param name="choices">A list of strings indicating the only selectable options for an argument. An error will be thrown if the provided values is not in the list of choices.</param>
+        /// <param name="required">Determines is an optional argument is required to be supplied. Can be used for positional arguments too but it won't effect anything.</param>
+        /// <param name="help">Help string to be printed in the help message for the argument. It is empty by default.</param>
+        /// <param name="constant">Constant value for the argument. This parameter only works for arguments with `StoreConst` and `AppendConst` actions.</param>
         public void AddArgument(string name,
                                 string longName = null,
                                 ArgumentAction action = ArgumentAction.Store,
@@ -90,6 +108,18 @@ namespace ArdaOzcan.SimpleArgParse
             }
         }
 
+        /// <summary>
+        /// Add subparsers for the parent parser. Subparsers is an 
+        /// object that resembles a branch split in a tree. That means you can 
+        /// branch into different parsers from a parent parser. This can be used 
+        /// for a tool that does more than one job and requires keyword commands 
+        /// to do them. .NET CLI can be an example since it contains a lot of 
+        /// different commands (subparsers) for different actions.
+        /// </summary>
+        /// <param name="help">Help string to be printed in the help message for the subparsers object. It is empty by default.</param>
+        /// <param name="title">Shows the subparsers help message in a different section with the given name.</param>
+        /// <param name="dest">Adds a key to the namespace for the parser with the supplied string as value.</param>
+        /// <returns>The added subparser object.</returns>
         public Subparsers AddSubparsers(string help = "", string title = "", string dest = "")
         {
             var subparsers = new Subparsers(Prog, help, title, dest);
@@ -212,7 +242,18 @@ namespace ArdaOzcan.SimpleArgParse
 
         }
 
+        /// <summary>
+        /// This method will parse the given arguments and return a Namespace object that will allow you to access all arguments.
+        /// </summary>
+        /// <param name="args">String array that has the provided arguments as elements. You can use the default `args` array from the Main method parameters or provide a custom array. </param>
+        /// <returns>Generated namespace.</returns>
         public Namespace ParseArgs(string[] args)
+        {
+            int notUsed;
+            return ParseArgs(args, out notUsed);
+        }
+
+        internal Namespace ParseArgs(string[] args, out int lastPos, bool returnWhenDone=false)
         {
             var argNamespace = new Namespace();
             var unrecognizedArguments = new List<string>();
@@ -235,9 +276,6 @@ namespace ArdaOzcan.SimpleArgParse
             while (pos < args.Length)
             {
                 string arg = args[pos];
-                Argument currentPositionalArg = null;
-                if (positionalArgPos < PositionalArguments.Count)
-                    currentPositionalArg = PositionalArguments[positionalArgPos];
 
                 if (arg.IsOptionalArgument())
                 {
@@ -317,6 +355,15 @@ namespace ArdaOzcan.SimpleArgParse
                     continue;
                 }
 
+                Argument currentPositionalArg = null;
+                if (positionalArgPos < PositionalArguments.Count)
+                    currentPositionalArg = PositionalArguments[positionalArgPos];
+                else if(returnWhenDone)
+                {
+                    lastPos = pos;
+                    return argNamespace;
+                }
+
                 if (currentPositionalArg != null)
                 {
                     if (!string.IsNullOrEmpty(currentPositionalArg.KeyName))
@@ -333,7 +380,9 @@ namespace ArdaOzcan.SimpleArgParse
                         var currentSubparser = ((Subparsers)currentPositionalArg);
                         if (currentSubparser.parsers.ContainsKey(arg))
                         {
-                            var ns = currentSubparser.parsers[arg].ParseArgs(newArr);
+                            int subLastPos;
+                            var ns = currentSubparser.parsers[arg].ParseArgs(newArr, out subLastPos, returnWhenDone: true);
+                            pos += subLastPos;
                             argNamespace.Join(ns);
                         }
                         else
@@ -372,7 +421,7 @@ namespace ArdaOzcan.SimpleArgParse
             if (notSuppliedPositionalArguments.Count > 0)
                 PrintError($"the following arguments are required: {string.Join(", ", notSuppliedPositionalArguments)}");
 
-
+            lastPos = pos;
             return argNamespace;
         }
 
