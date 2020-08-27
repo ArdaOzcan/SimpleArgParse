@@ -121,9 +121,6 @@ namespace ArdaOzcan.SimpleArgParse
                 Console.WriteLine(Description);
                 Console.WriteLine();
             }
-            // PrintHelpArray("Positional arguments", GetHelpList(PositionalArguments), PositionalArguments);
-            // PrintHelpArray("Optional arguments", GetHelpList(OptionalArguments), OptionalArguments);
-
 
             foreach (var x in Categories)
                 PrintHelpArray(x.Key, GetHelpList(x.Value), x.Value);
