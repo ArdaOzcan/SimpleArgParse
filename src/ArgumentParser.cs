@@ -142,7 +142,7 @@ namespace ArdaOzcan.SimpleArgParse
             return subparsers;
         }
 
-        private void PrintHelp()
+        public void PrintHelp()
         {
             PrintUsage();
             Console.WriteLine();

@@ -14,6 +14,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>SAPLogo-square.png</PackageIcon>
+    <PackageTags>command;line;parse;argparse;argument parser;cli</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
